@@ -26,7 +26,7 @@ def printStatus( motionStatus, ledStatus):
 def statusResettingThread(threadStatus, motionStatus):
     #resets the motion status to 0 after .3 seconds without input
     while threadStatus[0] == 1:
-        time.sleep(.3)
+        time.sleep(.2)
         if motionStatus[1] == 0:
             motionStatus[0] = 0
         motionStatus[1] = 0
@@ -72,6 +72,8 @@ def update(threadStatus, motionStatus, ledStatus):
 
 def main():
     print("exit with ^C or ^D")
+    #initialize PINS
+    gpioModule.initialize()
     #dictates status of the threads: 1-continue, 0-stop
     threadStatus = [1]
     #status[0]: 0-do nothing, 1-left, 2-forw, 3-right, -4backw 
@@ -95,6 +97,10 @@ def main():
                 inputHandler(motionStatus, ledStatus,  ord(key))
         except (KeyboardInterrupt, EOFError):
             threadStatus[0] = 0
+            #wait for all threads to close
+            time.sleep(0.5)
+            #clean up
+            gpioModule.cleanup()
             pass
 
 
