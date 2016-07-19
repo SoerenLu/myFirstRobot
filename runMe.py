@@ -4,7 +4,7 @@ import sys
 import termios
 import contextlib
 import time
-import gpioModule
+from hardwareController import *
 
 @contextlib.contextmanager
 def raw_mode(file):
@@ -64,16 +64,15 @@ def inputHandler(motionStatusIs, ledStatusIs, input):
         ledStatusIs[0] = ledStatusCmd
 
 def update(threadStatus, motionStatus, ledStatus):
+    hc = hardwareController()
     while threadStatus[0] == 1:
         time.sleep(0.1)
-        gpioModule.updateMotor(motionStatus)
-        gpioModule.updateLED(ledStatus)
+        hc.updateMotor(motionStatus)
+        hc.updateLED(ledStatus)
         printStatus(motionStatus, ledStatus)
 
 def main():
     print("exit with ^C or ^D")
-    #initialize PINS
-    gpioModule.initialize()
     #dictates status of the threads: 1-continue, 0-stop
     threadStatus = [1]
     #status[0]: 0-do nothing, 1-left, 2-forw, 3-right, -4backw 
@@ -99,8 +98,6 @@ def main():
             threadStatus[0] = 0
             #wait for all threads to close
             time.sleep(0.5)
-            #clean up
-            gpioModule.cleanup()
             pass
 
 
